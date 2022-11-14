@@ -42,13 +42,14 @@ public class UserService {
 
     @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public void delete(String id) {
-        try {
+            findById(id);
             userRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Usuário não encontrado");
-        } catch (DataIntegrityViolationException e) {
-            throw new DataBaseException("Falha de integridade refencial");
-        }
+    }
+
+    public UserDTO update(String id, UserDTO userDTO) {
+        User userEntity = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        copyDtoToEntity(userDTO, userEntity);
+        return new UserDTO(userRepository.save(userEntity));
     }
 
     private void copyDtoToEntity(UserDTO userDTO, User userEntity) {
